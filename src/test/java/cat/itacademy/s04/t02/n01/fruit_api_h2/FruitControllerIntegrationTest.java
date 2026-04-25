@@ -9,9 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -190,5 +188,33 @@ class FruitControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(badJson))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Should return 204 when fruits is successfully deleted")
+    void deleteFruit_withValidId_returns204() throws Exception {
+
+        String fruitJson = "{\"name\": \"Strawberry\", \"weightInKilos\": 3}";
+        String response = mockMvc.perform(post("/fruits")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(fruitJson))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Long id = ((Number) com.jayway.jsonpath.JsonPath.read(response, "$.id")).longValue();
+
+        mockMvc.perform(delete("/fruits/{id}", id))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/fruits/{id}", id))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Should return 404 when deleting a non-existing fruit")
+    void deleteFruit_withInvalidId_returns404() throws Exception {
+        mockMvc.perform(delete("/fruits/{id}", 999L))
+                .andExpect(status().isNotFound());
     }
 }
