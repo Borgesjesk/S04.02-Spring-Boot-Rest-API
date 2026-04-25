@@ -12,8 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -94,5 +93,15 @@ class FruitControllerIntegrationTest {
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].name").value("Banana"))
                 .andExpect(jsonPath("$[1].name").value("Orange"));
+    }
+
+    @Test
+    @DisplayName("Should return an empty list and 200 OK when no Fruits exists")
+    void getAllFruits_whenEmpty_returnsEmptyListAnd200() throws Exception {
+
+        mockMvc.perform(get("/fruits")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 }
