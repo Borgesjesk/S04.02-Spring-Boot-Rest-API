@@ -1,6 +1,8 @@
 package cat.itacademy.s04.t02.n01.fruit_api_h2;
 
 
+import cat.itacademy.s04.t02.n01.fruit_api_h2.model.Fruit;
+import cat.itacademy.s04.t02.n01.fruit_api_h2.repository.FruitRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +90,7 @@ class FruitControllerIntegrationTest {
                 .content(fruit2));
 
         mockMvc.perform(get("/fruits")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].name").value("Banana"))
@@ -100,8 +102,39 @@ class FruitControllerIntegrationTest {
     void getAllFruits_whenEmpty_returnsEmptyListAnd200() throws Exception {
 
         mockMvc.perform(get("/fruits")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    @DisplayName("Should return 200 and the fruit when ID exists")
+    void getFruitById_whenValidId_returns200AndFruit() throws Exception {
+        String fruitJson = "{\"name\": \"Mango\", \"weightInKilos\": 2}";
+
+        String response = mockMvc.perform(post("/fruits")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(fruitJson))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Long id = ((Number) com.jayway.jsonpath.JsonPath.read(response, "$.id")).longValue();
+
+        mockMvc.perform(get("/fruits/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Mango"))
+                .andExpect(jsonPath("$.weightInKilos").value(2));
+    }
+
+    @Test
+    @DisplayName("Should return 404 when fruit ID does not exist")
+    void getFruitById_whenInvalidId_returns404() throws Exception {
+
+        mockMvc.perform(get("/fruits/{id}", 999L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }
