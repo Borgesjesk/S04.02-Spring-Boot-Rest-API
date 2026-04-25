@@ -1,8 +1,5 @@
 package cat.itacademy.s04.t02.n01.fruit_api_h2;
 
-
-import cat.itacademy.s04.t02.n01.fruit_api_h2.model.Fruit;
-import cat.itacademy.s04.t02.n01.fruit_api_h2.repository.FruitRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -136,5 +134,61 @@ class FruitControllerIntegrationTest {
         mockMvc.perform(get("/fruits/{id}", 999L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Should return 200 and updated fruit when ID exists and data is valid")
+    void updateFruit_withValidData_returns200AndUpdatedFruit() throws Exception {
+        String originalJson = "{\"name\": \"Melon\", \"weightInKilos\": 5}";
+        String postResponse = mockMvc.perform(post("/fruits")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(originalJson))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Long id = ((Number) com.jayway.jsonpath.JsonPath.read(postResponse, "$.id")).longValue();
+
+        String updatedJson = "{\"name\": \"Green Melon\", \"weightInKilos\": 6}";
+
+        mockMvc.perform(put("/fruits/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updatedJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Green Melon"))
+                .andExpect(jsonPath("$.weightInKilos").value(6));
+    }
+
+    @Test
+    @DisplayName("Should return 404 when updating a non-existing fruit ID")
+    void updateFruit_whenInvalidId_returns404() throws Exception {
+        String updatedJson = "{\"name\": \"Kiwi\", \"weightInKilos\": 1}";
+
+
+        mockMvc.perform(put("/fruits/{id}", 999L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updatedJson))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Should return 400 when updating with invalid data (blank name)")
+    void updateFruit_withInvalidName_returns400() throws Exception {
+        String originalJson = "{\"name\": \"Watermelon\", \"weightInKilos\": 1}";
+        String postResponse = mockMvc.perform(post("/fruits")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(originalJson))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Long id = ((Number) com.jayway.jsonpath.JsonPath.read(postResponse, "$.id")).longValue();
+
+        String badJson = "{\"name\": \"\", \"weightInKilos\": 2}";
+
+        mockMvc.perform(put("/fruits/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(badJson))
+                .andExpect(status().isBadRequest());
     }
 }
