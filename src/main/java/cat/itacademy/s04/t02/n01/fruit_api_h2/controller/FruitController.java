@@ -43,4 +43,10 @@ public class FruitController {
 
         return ResponseEntity.ok(fruitService.updateFruit(id, dto));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteFruit(@PathVariable Long id) {
+        fruitService.deleteFruit(id);
+        return ResponseEntity.noContent().build();
+    }
 }

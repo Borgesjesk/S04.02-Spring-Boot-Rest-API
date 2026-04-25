@@ -14,4 +14,6 @@ public interface FruitService {
     FruitResponseDto getFruitById(Long id);
 
     FruitResponseDto updateFruit(Long id, FruitRequestDto dto);
+
+    void deleteFruit(Long id);
 }

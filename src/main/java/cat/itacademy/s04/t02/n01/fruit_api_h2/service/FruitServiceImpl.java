@@ -53,4 +53,12 @@ public class FruitServiceImpl implements FruitService {
 
         return FruitMapper.toResponseDto(updatedFruit);
     }
+
+    @Override
+    public void deleteFruit(Long id) {
+        if (!fruitRepository.existsById(id)) {
+            throw new FruitNotFoundException("Fruit with ID: %d not found".formatted(id));
+        }
+        fruitRepository.deleteById(id);
+    }
 }
