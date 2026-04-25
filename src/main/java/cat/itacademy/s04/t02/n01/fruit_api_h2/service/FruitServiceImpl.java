@@ -40,4 +40,17 @@ public class FruitServiceImpl implements FruitService {
                 .map(FruitMapper::toResponseDto)
                 .orElseThrow(() -> new FruitNotFoundException("Fruit with ID: %d not found".formatted(id)));
     }
+
+    @Override
+    public FruitResponseDto updateFruit(Long id, FruitRequestDto dto) {
+        Fruit existingFruit = fruitRepository.findById(id)
+                .orElseThrow(() -> new FruitNotFoundException("Fruit with ID: %d not found".formatted(id)));
+
+        existingFruit.setName(dto.getName());
+        existingFruit.setWeightInKilos(dto.getWeightInKilos());
+
+        Fruit updatedFruit = fruitRepository.save(existingFruit);
+
+        return FruitMapper.toResponseDto(updatedFruit);
+    }
 }
