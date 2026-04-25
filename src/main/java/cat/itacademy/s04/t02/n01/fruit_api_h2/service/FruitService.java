@@ -10,4 +10,6 @@ public interface FruitService {
     FruitResponseDto createFruit(FruitRequestDto dto);
 
     List<FruitResponseDto> findAllFruits();
+
+    FruitResponseDto getFruitById(Long id);
 }
