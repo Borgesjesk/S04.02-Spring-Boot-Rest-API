@@ -45,7 +45,6 @@ class FruitControllerIntegrationTest {
         mockMvc.perform(post("/fruits")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(fruitJson))
-                .andDo(print())
                 .andExpect(status().isBadRequest());
     }
 
