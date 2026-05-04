@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> response = new HashMap<>();
         response.put("message", ex.getMessage());
         response.put("status", 404);
-        response.put("error", "Not Found"); //or ("error", "Not Found"
+        response.put("error", "Not Found");
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
